@@ -1,5 +1,11 @@
 package com.example.monitoring;
 
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
 import com.example.monitoring.MainActivity;
 import com.example.monitoring.ServerActivity;
 
@@ -13,24 +19,38 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Enumeration;
 
-public class Server {
+import androidx.appcompat.app.AppCompatActivity;
 
-	ServerActivity activity;
-	ServerSocket serverSocket;
-	String message = "";
+
+public class Server extends AppCompatActivity {
+
+	private int lenght = 3000;
+
+	static ServerActivity activity;
+
+	static ServerSocket serverSocket;
+
+	static String message = "";
 	static final int socketServerPORT = 8080;
+
+	private TextView t;
+
 
 	public Server(ServerActivity activity) {
 		this.activity = activity;
 		Thread socketServerThread = new Thread(new SocketServerThread());
 		socketServerThread.start();
+
+		new SimpleAsyncTask().execute(lenght);
 	}
+
 
 	public int getPort() {
 		return socketServerPORT;
 	}
 
 	public void onDestroy() {
+		super.onDestroy();
 		if (serverSocket != null) {
 			try {
 				serverSocket.close();
@@ -41,7 +61,9 @@ public class Server {
 		}
 	}
 
-	private class SocketServerThread extends Thread {
+
+//-------------------------------------------------------------------------------
+	protected static class SocketServerThread extends Thread {
 
 		int count = 0;
 
@@ -49,6 +71,7 @@ public class Server {
 		public void run() {
 			try {
 				//ServerSocket(int port, int backlog, InetAddress bindAddr)
+				//creo nuovo Socket!!!
 				serverSocket = new ServerSocket(socketServerPORT);
 
 				while (true) {
@@ -64,9 +87,11 @@ public class Server {
 							activity.msg.setText(message);
 						}
 					});
-					//questa operazione permette di inviare qualcosa al client, fare in modo che quando supera una certa soglia parta la Reply
+					// questa operazione permette di inviare qualcosa al client,
+					// fare in modo che quando supera una certa soglia parta la Reply
 					SocketServerReplyThread socketServerReplyThread = new SocketServerReplyThread(
-							socket, count);//manderemo un valore
+							socket, count);
+					//manderemo un valore
 					socketServerReplyThread.run();
 				}
 			} catch (IOException e) {
@@ -74,10 +99,13 @@ public class Server {
 				e.printStackTrace();
 			}
 		}
+
+
 	//END SocketServerThread
 	}
 
-	private class SocketServerReplyThread extends Thread {
+//-------------------------------------------------------------------------------
+	protected static class SocketServerReplyThread extends Thread {
 
 		private Socket hostThreadSocket;
 		int cnt;
@@ -126,6 +154,8 @@ public class Server {
 	//END SocketServerReplyThread
 	}
 
+
+//-------------------------------------------------------------------------------
 	public String getIpAddress() {
 		String ip = "";
 		try {
@@ -154,6 +184,33 @@ public class Server {
 		}
 		return ip;
 	}
+
+
+
+
+	private class SimpleAsyncTask extends AsyncTask<Integer, Integer, String> {
+
+		@Override
+		protected String doInBackground(Integer... ints) {
+			for(int i=0; i<10; i++) {
+				try {
+					Thread.sleep(100);
+					publishProgress(i);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			return "Task completed!!!";
+		}
+
+		protected void onPostExecute(String result) {
+			//show final result…
+		}
+		protected void onProgressUpdate(Integer... progress) {
+			activity.infoip.setText(String.valueOf(progress[0]));
+		}
+	}
+
 
 //END class Server
 }

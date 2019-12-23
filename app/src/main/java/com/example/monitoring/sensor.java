@@ -143,9 +143,17 @@ public class sensor extends AppCompatActivity {
         // Show alert when noise thersold crossed
         Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, do here your stuff.",
                 Toast.LENGTH_LONG).show();
+        //NOTIFY TO ALL CLIENTS SUBSCRIBED!!!
+        // notifyAl();
+
+        Thread socketServerThread = new Thread(new Server.SocketServerThread());
+        socketServerThread.run();
+
+        //------------------------------------
         Log.d("SONUND", String.valueOf(signalEMA));
         tv_noice.setText(signalEMA+"dB");
     }
+
 
 //END sensor CLASS
 }

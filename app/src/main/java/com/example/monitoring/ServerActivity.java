@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class ServerActivity extends Activity {
 
 
-    com.androidsrc.server.Server server;
+    com.example.monitoring.Server server;
     public TextView infoip, msg;
 
 
@@ -25,7 +25,7 @@ public class ServerActivity extends Activity {
         infoip =  findViewById(R.id.infoip);
         msg =  findViewById(R.id.msg);
         //InetAddress a = new InetAddress();
-        server = new com.androidsrc.server.Server(this);
+        server = new com.example.monitoring.Server(this);
 
         infoip.setText(server.getIpAddress()+":"+server.getPort());
 
