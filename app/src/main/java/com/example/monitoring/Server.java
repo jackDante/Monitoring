@@ -1,17 +1,13 @@
 package com.example.monitoring;
 
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.os.StrictMode;
 
-import com.example.monitoring.MainActivity;
-import com.example.monitoring.ServerActivity;
-
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
@@ -22,28 +18,29 @@ import java.util.Enumeration;
 import androidx.appcompat.app.AppCompatActivity;
 
 
-public class Server extends AppCompatActivity {
 
-	private int lenght = 3000;
+
+public class Server extends AppCompatActivity {
 
 	static ServerActivity activity;
 
 	static ServerSocket serverSocket;
 
+	//-------------------------
+	private Socket socket;
+    private int count = 0;
+	//-------------------------
+
 	static String message = "";
 	static final int socketServerPORT = 8080;
 
-	private TextView t;
 
 
 	public Server(ServerActivity activity) {
 		this.activity = activity;
 		Thread socketServerThread = new Thread(new SocketServerThread());
 		socketServerThread.start();
-
-		new SimpleAsyncTask().execute(lenght);
 	}
-
 
 	public int getPort() {
 		return socketServerPORT;
@@ -62,71 +59,33 @@ public class Server extends AppCompatActivity {
 	}
 
 
-//-------------------------------------------------------------------------------
-	protected static class SocketServerThread extends Thread {
 
-		int count = 0;
+	protected class SocketServerThread extends Thread {
 
 		@Override
 		public void run() {
 			try {
-				//ServerSocket(int port, int backlog, InetAddress bindAddr)
-				//creo nuovo Socket!!!
 				serverSocket = new ServerSocket(socketServerPORT);
 
-				while (true) {
-					Socket socket = serverSocket.accept();
-					count++;
-					message += "#" + count + " from "
-							+ socket.getInetAddress() + ":"
-							+ socket.getPort() + "\n";
-					activity.runOnUiThread(new Runnable() {
+				//Listens for a connection to be made to this socket and accepts it.
+				//The method blocks until a connection is made.
+				socket = serverSocket.accept();
 
-						@Override
-						public void run() {
-							activity.msg.setText(message);
-						}
-					});
-					// questa operazione permette di inviare qualcosa al client,
-					// fare in modo che quando supera una certa soglia parta la Reply
-					SocketServerReplyThread socketServerReplyThread = new SocketServerReplyThread(
-							socket, count);
-					//manderemo un valore
-					socketServerReplyThread.run();
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+/*
+				SocketServerReplyThread socketServerReplyThread =
+						new SocketServerReplyThread(socket, "Welcome from Server! \n");
+				socketServerReplyThread.run();
 
+				Thread.sleep(1000);
 
-	//END SocketServerThread
-	}
+				SocketServerReplyThread socketServerReplyThread2 =
+						new SocketServerReplyThread(socket, "Welcome222 from Server! \n");
+				socketServerReplyThread2.run();
+*/
 
-//-------------------------------------------------------------------------------
-	protected static class SocketServerReplyThread extends Thread {
-
-		private Socket hostThreadSocket;
-		int cnt;
-
-		SocketServerReplyThread(Socket socket, int c) {
-			hostThreadSocket = socket;
-			cnt = c;
-		}
-
-		@Override
-		public void run() {
-			OutputStream outputStream;
-			String msgReply = "Hello from Server, you are #" + cnt;
-
-			try {
-				outputStream = hostThreadSocket.getOutputStream();
-				PrintStream printStream = new PrintStream(outputStream);
-				printStream.print(msgReply);
-				printStream.close();
-
-				message += "replayed: " + msgReply + "\n";
+				message += "#" + count + " from "
+						+ socket.getInetAddress() + ":"
+						+ socket.getPort() + "\n";
 
 				activity.runOnUiThread(new Runnable() {
 
@@ -139,7 +98,67 @@ public class Server extends AppCompatActivity {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				message += "Something wrong! " + e.toString() + "\n";
+			}
+		}
+
+
+	//END SocketServerThread
+	}
+
+
+	protected class SocketServerReplyThread extends Thread {
+
+		private Socket hostThreadSocket;
+		private String msgReply;
+
+
+		private OutputStream outputStream;
+		private PrintStream printStream;
+
+
+		SocketServerReplyThread(Socket socket, String mex) {
+			hostThreadSocket = socket;
+			msgReply = mex;
+		}
+
+
+		@Override
+		public void run() {
+
+			try {
+				/*
+				outputStream = hostThreadSocket.getOutputStream();
+
+				printStream = new PrintStream(outputStream, true);
+				printStream.println(msgReply);
+				printStream.close();
+				*/
+
+				outputStream = hostThreadSocket.getOutputStream();
+				OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+				BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+				PrintWriter out = new PrintWriter(bufferedWriter, true);
+				out.println(msgReply);
+
+				if(msgReply.equals("santoDios"))
+					out.close();
+					//printStream.close();
+
+
+
+				message += "replayed: " + msgReply + "\n";
+				activity.runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						activity.msg.setText(message);
+					}
+				});
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				message += "[SocketServerReplyT] ---getOutputStream--- " + e.toString() + "\n";
 			}
 
 			activity.runOnUiThread(new Runnable() {
@@ -155,7 +174,6 @@ public class Server extends AppCompatActivity {
 	}
 
 
-//-------------------------------------------------------------------------------
 	public String getIpAddress() {
 		String ip = "";
 		try {
@@ -172,7 +190,7 @@ public class Server extends AppCompatActivity {
 
 					if (inetAddress.isSiteLocalAddress()) {
 						ip += "Server running at : "
-								+ inetAddress.getHostAddress();
+								+ inetAddress.getHostAddress() + "\n";
 					}
 				}
 			}
@@ -180,36 +198,23 @@ public class Server extends AppCompatActivity {
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			ip += "Something Wrong! " + e.toString() + "\n";
+			ip += "[getIpAddress]Something Wrong! " + e.toString() + "\n";
 		}
 		return ip;
 	}
 
+	public void notifica(String msg){
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+				.permitAll().build();
+		StrictMode.setThreadPolicy(policy);
 
-
-
-	private class SimpleAsyncTask extends AsyncTask<Integer, Integer, String> {
-
-		@Override
-		protected String doInBackground(Integer... ints) {
-			for(int i=0; i<10; i++) {
-				try {
-					Thread.sleep(100);
-					publishProgress(i);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			return "Task completed!!!";
-		}
-
-		protected void onPostExecute(String result) {
-			//show final result…
-		}
-		protected void onProgressUpdate(Integer... progress) {
-			activity.infoip.setText(String.valueOf(progress[0]));
-		}
+		SocketServerReplyThread socketServerReplyThread =
+				new SocketServerReplyThread(socket, msg);
+		socketServerReplyThread.run();
 	}
+
+
+
 
 
 //END class Server

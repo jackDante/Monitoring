@@ -9,36 +9,27 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.util.Log;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 
 
-public class sensor extends AppCompatActivity {
+public class sensor extends  AppCompatActivity{
     /* constants */
     private static final int POLL_INTERVAL = 300;
-
     /** running state **/
     private boolean mRunning = false;
-
     /** config state **/
     private int mThreshold;
-
     int RECORD_AUDIO = 0;
     private PowerManager.WakeLock mWakeLock;
-
     private Handler mHandler = new Handler();
-
-    /* References to view elements */
-    private TextView mStatusView, tv_noice;
-
     /* sound data source */
     private DetectNoise mSensor;
-    ProgressBar bar;
+
+
 
     /****************** Define runnable thread again and again detect noise *********/
-
     private Runnable mSleepTask = new Runnable() {
         public void run() {
             //Log.i("Noise", "runnable mSleepTask");
@@ -51,26 +42,35 @@ public class sensor extends AppCompatActivity {
         public void run() {
             double amp = mSensor.getAmplitude();
             //Log.i("Noise", "runnable mPollTask");
-            updateDisplay("Monitoring Voice...", amp);
-
+            //updateDisplay("Monitoring Voice...", amp);
             if ((amp > mThreshold)) {
-                callForHelp(amp);
+                try {
+                    callForHelp(amp);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 //Log.i("Noise", "==== onCreate ===");
             }
             // Runnable(mPollTask) will again execute after POLL_INTERVAL
             mHandler.postDelayed(mPollTask, POLL_INTERVAL);
         }
     };
+
+/*
+    public sensor(ServerActivity serverActivity) {
+        this.activity = serverActivity;
+        // Used to record voice
+        mSensor = new DetectNoise();
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "monitoring:MyTag");
+    }
+*/
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Defined SoundLevelView in main.xml file
-        setContentView(R.layout.activity_sensor);
-        mStatusView = findViewById(R.id.status);
-        tv_noice = findViewById(R.id.tv_noice);
-        bar = findViewById(R.id.progressBar);
-
 
         // Used to record voice
         mSensor = new DetectNoise();
@@ -95,15 +95,14 @@ public class sensor extends AppCompatActivity {
         //Stop noise monitoring
         stop();
     }
+
+
     private void start() {
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO},
                     RECORD_AUDIO);
         }
 
-        //Log.i("Noise", "==== start ===");
         mSensor.start();
         if (!mWakeLock.isHeld()) {
             mWakeLock.acquire();
@@ -120,39 +119,34 @@ public class sensor extends AppCompatActivity {
         mHandler.removeCallbacks(mSleepTask);
         mHandler.removeCallbacks(mPollTask);
         mSensor.stop();
-        bar.setProgress(0);
-        updateDisplay("stopped...", 0.0);
         mRunning = false;
     }
 
     private void initializeApplicationConstants() {
         // Set Noise Threshold
         mThreshold = 8;
-
     }
 
     private void updateDisplay(String status, double signalEMA) {
-        mStatusView.setText(status);
-        bar.setProgress((int)signalEMA);
+        //mStatusView.setText(status);
+        //bar.setProgress((int)signalEMA);
         Log.d("SONUND", String.valueOf(signalEMA));
-        tv_noice.setText(signalEMA+"dB");
+        //tv_noice.setText(signalEMA+"dB");
     }
 
-    private void callForHelp(double signalEMA) {
+    private void callForHelp(double signalEMA) throws IOException {
         //stop();
         // Show alert when noise thersold crossed
         Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, do here your stuff.",
                 Toast.LENGTH_LONG).show();
-        //NOTIFY TO ALL CLIENTS SUBSCRIBED!!!
-        // notifyAl();
 
-        Thread socketServerThread = new Thread(new Server.SocketServerThread());
-        socketServerThread.run();
+        //NOTIFY TO ALL CLIENTS SUBSCRIBED!!!
 
         //------------------------------------
         Log.d("SONUND", String.valueOf(signalEMA));
-        tv_noice.setText(signalEMA+"dB");
+        //tv_noice.setText(signalEMA+"dB");
     }
+
 
 
 //END sensor CLASS
