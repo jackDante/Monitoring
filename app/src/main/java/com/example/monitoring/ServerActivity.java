@@ -160,13 +160,10 @@ public class ServerActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, do here your stuff.",
                 Toast.LENGTH_LONG).show();
 
-        //NOTIFY TO ALL CLIENTS SUBSCRIBED!!!
 
-        server.notifica("santoDios");
+        server.notifica("NOTIFIY");
 
-        //___________________________________________________________________
         Log.d("SONUND", String.valueOf(signalEMA));
-        //tv_noice.setText(signalEMA+"dB");
     }
 
 //END CLASS ServerActivity

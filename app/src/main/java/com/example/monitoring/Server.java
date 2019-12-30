@@ -2,12 +2,9 @@ package com.example.monitoring;
 
 import android.os.StrictMode;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
@@ -33,6 +30,11 @@ public class Server extends AppCompatActivity {
 
 	static String message = "";
 	static final int socketServerPORT = 8080;
+
+	private String hostaddress;
+	private Socket hostSocket;
+	protected int socketHostPORT;
+
 
 
 
@@ -71,7 +73,12 @@ public class Server extends AppCompatActivity {
 				//The method blocks until a connection is made.
 				socket = serverSocket.accept();
 
+
+				hostaddress = socket.getInetAddress().getHostAddress();
+				socketHostPORT = socket.getPort();
+
 /*
+--------TESTING------------------------------------------------------------------------
 				SocketServerReplyThread socketServerReplyThread =
 						new SocketServerReplyThread(socket, "Welcome from Server! \n");
 				socketServerReplyThread.run();
@@ -105,6 +112,7 @@ public class Server extends AppCompatActivity {
 	//END SocketServerThread
 	}
 
+	private OutputStream outputStream = null;
 
 	protected class SocketServerReplyThread extends Thread {
 
@@ -112,7 +120,6 @@ public class Server extends AppCompatActivity {
 		private String msgReply;
 
 
-		private OutputStream outputStream;
 		private PrintStream printStream;
 
 
@@ -126,27 +133,16 @@ public class Server extends AppCompatActivity {
 		public void run() {
 
 			try {
-				/*
-				outputStream = hostThreadSocket.getOutputStream();
+
+				//if(outputStream == null)
+					outputStream = hostThreadSocket.getOutputStream();
 
 				printStream = new PrintStream(outputStream, true);
 				printStream.println(msgReply);
 				printStream.close();
-				*/
-
-				outputStream = hostThreadSocket.getOutputStream();
-				OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
-				BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
-				PrintWriter out = new PrintWriter(bufferedWriter, true);
-				out.println(msgReply);
-
-				if(msgReply.equals("santoDios"))
-					out.close();
-					//printStream.close();
 
 
-
-				message += "replayed: " + msgReply + "\n";
+				message += "[Server]replayed: " + msgReply + "\n";
 				activity.runOnUiThread(new Runnable() {
 
 					@Override

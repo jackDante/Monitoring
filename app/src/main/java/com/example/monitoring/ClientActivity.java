@@ -81,7 +81,20 @@ public class ClientActivity extends Activity {
                 e.printStackTrace();
             }
 
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    textResponse.setText("Sto ascoltando rumori...");
+                }
+            });
+
             while(!socket.isClosed()) {
+                /*
+                * In questo modo ascolto sempre nuovi messaggi. Il problema è lato server perchè
+                * la getOutputStream mi da errore! Trova il socket chiuso, ma non è quello del Client.
+                * */
+
+
                 try {
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
                     byte[] buffer = new byte[1024];
@@ -92,14 +105,10 @@ public class ClientActivity extends Activity {
                     /*
                      * notice: inputStream.read() will block if no data return
                      */
-
                     while ((bytesRead = inputStream.read(buffer)) != -1) {
                         byteArrayOutputStream.write(buffer, 0, bytesRead);
                         response += byteArrayOutputStream.toString("UTF-8");
                     }
-
-                    //publishProgress(response);
-
 
                     runOnUiThread(new Runnable() {
 
@@ -109,10 +118,9 @@ public class ClientActivity extends Activity {
                         }
                     });
 
-/*
-                    if(response.equals("santoDios"))
+                    if(response.equals("NOTIFIY"))
                         socket.close();
-*/
+                        //lancia suoneria su questo dispositivo
 
                 } catch (UnknownHostException e) {
                     // TODO Auto-generated catch block
@@ -134,18 +142,13 @@ public class ClientActivity extends Activity {
 					}
 				}
 			}
-			*/
-
-			runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            textResponse.setText("SONO USCITO dal While!!!");
-                        }
-                    });
-
+*/
             return null;
         }
+
+
+
+
 
 /*
         protected void onProgressUpdate(String... s) {
