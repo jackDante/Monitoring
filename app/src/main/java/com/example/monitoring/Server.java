@@ -1,5 +1,7 @@
 package com.example.monitoring;
 
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.StrictMode;
 
 import java.io.IOException;
@@ -25,23 +27,20 @@ public class Server extends AppCompatActivity {
 
 	//-------------------------
 	private Socket socket;
-    private int count = 0;
+	private boolean connected = false;
+	private int count = 0;
 	//-------------------------
 
 	static String message = "";
 	static final int socketServerPORT = 8080;
-
-	private String hostaddress;
-	private Socket hostSocket;
-	protected int socketHostPORT;
 
 
 
 
 	public Server(ServerActivity activity) {
 		this.activity = activity;
-		Thread socketServerThread = new Thread(new SocketServerThread());
-		socketServerThread.start();
+		SocketServerThread socketServerThread = new SocketServerThread();
+		socketServerThread.execute();
 	}
 
 	public int getPort() {
@@ -61,58 +60,47 @@ public class Server extends AppCompatActivity {
 	}
 
 
-
-	protected class SocketServerThread extends Thread {
+	protected class SocketServerThread extends AsyncTask<Void, Void, Void> {
 
 		@Override
-		public void run() {
+		protected Void doInBackground(Void... arg0) {
 			try {
 				serverSocket = new ServerSocket(socketServerPORT);
 
-				//Listens for a connection to be made to this socket and accepts it.
-				//The method blocks until a connection is made.
-				socket = serverSocket.accept();
+				while(true) {
+
+					//Listens for a connection to be made to this socket and accepts it.
+					//The method blocks until a connection is made.
+					socket = serverSocket.accept();
+					connected = true; //in questo modo attivo la notifica quando sento rumore
 
 
-				hostaddress = socket.getInetAddress().getHostAddress();
-				socketHostPORT = socket.getPort();
+					message += "#" + count + " from "
+							+ socket.getInetAddress() + ":"
+							+ socket.getPort() + "\n";
 
-/*
---------TESTING------------------------------------------------------------------------
-				SocketServerReplyThread socketServerReplyThread =
-						new SocketServerReplyThread(socket, "Welcome from Server! \n");
-				socketServerReplyThread.run();
+					activity.runOnUiThread(new Runnable() {
 
-				Thread.sleep(1000);
+						@Override
+						public void run() {
+							activity.msg.setText(message);
+						}
+					});
 
-				SocketServerReplyThread socketServerReplyThread2 =
-						new SocketServerReplyThread(socket, "Welcome222 from Server! \n");
-				socketServerReplyThread2.run();
-*/
-
-				message += "#" + count + " from "
-						+ socket.getInetAddress() + ":"
-						+ socket.getPort() + "\n";
-
-				activity.runOnUiThread(new Runnable() {
-
-					@Override
-					public void run() {
-						activity.msg.setText(message);
-					}
-				});
-
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
 
+			return null;
+		}
 
 	//END SocketServerThread
 	}
 
-	private OutputStream outputStream = null;
+
+
 
 	protected class SocketServerReplyThread extends Thread {
 
@@ -120,28 +108,22 @@ public class Server extends AppCompatActivity {
 		private String msgReply;
 
 
-		private PrintStream printStream;
-
-
 		SocketServerReplyThread(Socket socket, String mex) {
 			hostThreadSocket = socket;
 			msgReply = mex;
 		}
 
-
 		@Override
 		public void run() {
 
 			try {
+				OutputStream o = hostThreadSocket.getOutputStream();
+				PrintStream out = new PrintStream(o, true);
 
-				//if(outputStream == null)
-					outputStream = hostThreadSocket.getOutputStream();
+				out.println(msgReply);
+				out.close();
 
-				printStream = new PrintStream(outputStream, true);
-				printStream.println(msgReply);
-				printStream.close();
-
-
+				if(socket.isClosed()) message += "[SocketChiuso!] ";
 				message += "[Server]replayed: " + msgReply + "\n";
 				activity.runOnUiThread(new Runnable() {
 
@@ -157,6 +139,7 @@ public class Server extends AppCompatActivity {
 				message += "[SocketServerReplyT] ---getOutputStream--- " + e.toString() + "\n";
 			}
 
+
 			activity.runOnUiThread(new Runnable() {
 
 				@Override
@@ -170,23 +153,18 @@ public class Server extends AppCompatActivity {
 	}
 
 
+
 	public String getIpAddress() {
 		String ip = "";
 		try {
-			Enumeration<NetworkInterface> enumNetworkInterfaces = NetworkInterface
-					.getNetworkInterfaces();
+			Enumeration<NetworkInterface> enumNetworkInterfaces = NetworkInterface.getNetworkInterfaces();
 			while (enumNetworkInterfaces.hasMoreElements()) {
-				NetworkInterface networkInterface = enumNetworkInterfaces
-						.nextElement();
-				Enumeration<InetAddress> enumInetAddress = networkInterface
-						.getInetAddresses();
+				NetworkInterface networkInterface = enumNetworkInterfaces.nextElement();
+				Enumeration<InetAddress> enumInetAddress = networkInterface.getInetAddresses();
 				while (enumInetAddress.hasMoreElements()) {
-					InetAddress inetAddress = enumInetAddress
-							.nextElement();
-
+					InetAddress inetAddress = enumInetAddress.nextElement();
 					if (inetAddress.isSiteLocalAddress()) {
-						ip += "Server running at : "
-								+ inetAddress.getHostAddress() + "\n";
+						ip += "SERVER running at : " + inetAddress.getHostAddress() + "\n";
 					}
 				}
 			}
@@ -199,16 +177,24 @@ public class Server extends AppCompatActivity {
 		return ip;
 	}
 
-	public void notifica(String msg){
+
+
+	public void notifica(String msg) {
 		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
 				.permitAll().build();
 		StrictMode.setThreadPolicy(policy);
 
-		SocketServerReplyThread socketServerReplyThread =
-				new SocketServerReplyThread(socket, msg);
-		socketServerReplyThread.run();
+		if(!socket.isClosed()) {
+			SocketServerReplyThread socketServerReplyThread = new SocketServerReplyThread(socket, msg);
+			socketServerReplyThread.run();
+		}
+
 	}
 
+	//notifica se il server ha accettato una richiesta
+	protected boolean exist() {
+		return connected;
+	}
 
 
 

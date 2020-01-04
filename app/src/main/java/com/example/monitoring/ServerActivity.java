@@ -1,5 +1,6 @@
 package com.example.monitoring;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -12,7 +13,6 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
-
 import java.io.IOException;
 
 
@@ -48,7 +48,7 @@ public class ServerActivity extends AppCompatActivity {
 
         server = new com.example.monitoring.Server(this);
 
-        infoip.setText(server.getIpAddress()+":"+server.getPort());
+        infoip.setText(server.getIpAddress()+"PORT: "+server.getPort());
 
         // Defined SoundLevelView in main.xml file
         // Used to record voice
@@ -84,11 +84,7 @@ public class ServerActivity extends AppCompatActivity {
             //Log.i("Noise", "runnable mPollTask");
             //updateDisplay("Monitoring Voice...", amp);
             if ((amp > mThreshold)) {
-                try {
-                    callForHelp(amp);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                callForHelp(amp);
                 //Log.i("Noise", "==== onCreate ===");
             }
             // Runnable(mPollTask) will again execute after POLL_INTERVAL
@@ -144,26 +140,29 @@ public class ServerActivity extends AppCompatActivity {
 
     private void initializeApplicationConstants() {
         // Set Noise Threshold
-        mThreshold = 8;
+        mThreshold = 10;
     }
 
     private void updateDisplay(String status, double signalEMA) {
         //mStatusView.setText(status);
         //bar.setProgress((int)signalEMA);
-        Log.d("SONUND", String.valueOf(signalEMA));
+        Log.d("SOUND", String.valueOf(signalEMA));
         //tv_noice.setText(signalEMA+"dB");
     }
 
-    private void callForHelp(double signalEMA) throws IOException {
+    private void callForHelp(double signalEMA) {
         //stop();
         // Show alert when noise thersold crossed
         Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, do here your stuff.",
                 Toast.LENGTH_LONG).show();
 
+        if (server.exist())
+            server.notifica("NOTIFIY-");
 
-        server.notifica("NOTIFIY");
+        Intent i = new Intent(this, MainActivity.class);
+        startActivity(i);
 
-        Log.d("SONUND", String.valueOf(signalEMA));
+        Log.d("SOUND", String.valueOf(signalEMA));
     }
 
 //END CLASS ServerActivity

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ public class sensor extends  AppCompatActivity{
     /* sound data source */
     private DetectNoise mSensor;
 
+    public TextView tv_noice, status;
 
 
     /****************** Define runnable thread again and again detect noise *********/
@@ -41,8 +43,8 @@ public class sensor extends  AppCompatActivity{
     private Runnable mPollTask = new Runnable() {
         public void run() {
             double amp = mSensor.getAmplitude();
-            //Log.i("Noise", "runnable mPollTask");
-            //updateDisplay("Monitoring Voice...", amp);
+            Log.i("Noise", "runnable mPollTask");
+            updateDisplay("Monitoring Voice...", amp);
             if ((amp > mThreshold)) {
                 try {
                     callForHelp(amp);
@@ -56,21 +58,15 @@ public class sensor extends  AppCompatActivity{
         }
     };
 
-/*
-    public sensor(ServerActivity serverActivity) {
-        this.activity = serverActivity;
-        // Used to record voice
-        mSensor = new DetectNoise();
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "monitoring:MyTag");
-    }
-*/
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Defined SoundLevelView in main.xml file
+        setContentView(R.layout.activity_sensor);
+        tv_noice =  findViewById(R.id.tv_noice);
+        status =  findViewById(R.id.status);
 
         // Used to record voice
         mSensor = new DetectNoise();
@@ -80,7 +76,7 @@ public class sensor extends  AppCompatActivity{
     @Override
     public void onResume() {
         super.onResume();
-        //Log.i("Noise", "==== onResume ===");
+        Log.i("Noise", "==== onResume ===");
 
         initializeApplicationConstants();
         if (!mRunning) {
@@ -91,7 +87,7 @@ public class sensor extends  AppCompatActivity{
     @Override
     public void onStop() {
         super.onStop();
-        // Log.i("Noise", "==== onStop ===");
+        Log.i("Noise", "==== onStop ===");
         //Stop noise monitoring
         stop();
     }
@@ -127,11 +123,11 @@ public class sensor extends  AppCompatActivity{
         mThreshold = 8;
     }
 
-    private void updateDisplay(String status, double signalEMA) {
-        //mStatusView.setText(status);
+    private void updateDisplay(String s, double signalEMA) {
+        status.setText(s);
         //bar.setProgress((int)signalEMA);
         Log.d("SONUND", String.valueOf(signalEMA));
-        //tv_noice.setText(signalEMA+"dB");
+        tv_noice.setText(signalEMA + "  dB");
     }
 
     private void callForHelp(double signalEMA) throws IOException {
@@ -140,11 +136,8 @@ public class sensor extends  AppCompatActivity{
         Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, do here your stuff.",
                 Toast.LENGTH_LONG).show();
 
-        //NOTIFY TO ALL CLIENTS SUBSCRIBED!!!
-
-        //------------------------------------
         Log.d("SONUND", String.valueOf(signalEMA));
-        //tv_noice.setText(signalEMA+"dB");
+        tv_noice.setText(signalEMA + " dB");
     }
 
 
