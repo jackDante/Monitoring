@@ -114,8 +114,10 @@ public class ServerActivity extends AppCompatActivity {
 
 
     private void start() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO},
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.RECORD_AUDIO},
                     RECORD_AUDIO);
         }
 
@@ -153,14 +155,17 @@ public class ServerActivity extends AppCompatActivity {
     private void callForHelp(double signalEMA) {
         //stop();
         // Show alert when noise thersold crossed
-        Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, do here your stuff.",
+        Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, sending out an sos!",
                 Toast.LENGTH_LONG).show();
 
-        if (server.exist())
-            server.notifica("NOTIFIY-");
+        if (server.exist()) {
+            server.notifica("sending out an sos!");
+            server.closeServer();
+            server = new com.example.monitoring.Server(this);
 
-        Intent i = new Intent(this, MainActivity.class);
-        startActivity(i);
+            //Intent i = new Intent(this, MainActivity.class);
+            //startActivity(i);
+        }
 
         Log.d("SOUND", String.valueOf(signalEMA));
     }

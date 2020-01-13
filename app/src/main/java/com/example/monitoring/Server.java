@@ -75,9 +75,10 @@ public class Server extends AppCompatActivity {
 					connected = true; //in questo modo attivo la notifica quando sento rumore
 
 
-					message += "#" + count + " from "
-							+ socket.getInetAddress() + ":"
-							+ socket.getPort() + "\n";
+					message += "-> "
+							+ socket.getInetAddress() + " : "
+							+ socket.getPort() +  " is connected!"  +
+							"\n";
 
 					activity.runOnUiThread(new Runnable() {
 
@@ -123,8 +124,8 @@ public class Server extends AppCompatActivity {
 				out.println(msgReply);
 				out.close();
 
-				if(socket.isClosed()) message += "[SocketChiuso!] ";
-				message += "[Server]replayed: " + msgReply + "\n";
+				// testing --- if(socket.isClosed()) message += "[SocketChiuso!] ";
+				message += "[Server] replayed: " + msgReply + "\n";
 				activity.runOnUiThread(new Runnable() {
 
 					@Override
@@ -196,6 +197,17 @@ public class Server extends AppCompatActivity {
 		return connected;
 	}
 
+	protected void closeServer() {
+		if (serverSocket != null) {
+			try {
+				serverSocket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		finish();
+	}
 
 
 

@@ -22,8 +22,8 @@
 
         <TextView
             android:id="@+id/infoip"
-            android:layout_width="334dp"
-            android:layout_height="64dp"
+            android:layout_width="347dp"
+            android:layout_height="138dp"
             android:layout_gravity="center_horizontal"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textSize="18sp"
@@ -35,12 +35,14 @@
 
         <ScrollView
             android:id="@+id/scrollView2"
-            android:layout_width="371dp"
-            android:layout_height="307dp"
+            android:layout_width="354dp"
+            android:layout_height="233dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.6"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/infoip">
+            app:layout_constraintTop_toBottomOf="@+id/infoip"
+            app:layout_constraintVertical_bias="0.303">
 
             <TextView
                 android:id="@+id/msg"

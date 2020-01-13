@@ -144,70 +144,61 @@ public class ClientActivity extends Activity {
             } catch (IOException e) {
                 e.printStackTrace();
                 //manage Exception Handling
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        textResponse.setText("IP or port is incorrect!");
-                    }
-                });
                 return null;
             }
 
+            if(socket != null) {
+                try {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textResponse.setText("The monitoring is running...");
+                        }
+                    });
 
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    textResponse.setText("Sto ascoltando rumori...");
-                }
-            });
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
+                    byte[] buffer = new byte[1024];
 
+                    int bytesRead;
+                    InputStream inputStream = socket.getInputStream();
 
-            try {
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
-                byte[] buffer = new byte[1024];
-
-                int bytesRead;
-                InputStream inputStream = socket.getInputStream();
-
-                /*
-                 * notice: inputStream.read() will block if no data return
-                 */
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    byteArrayOutputStream.write(buffer, 0, bytesRead);
-                    response += byteArrayOutputStream.toString("UTF-8");
-                }
-
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        textResponse.setText(response);
+                    /*
+                     * notice: inputStream.read() will block if no data return
+                     */
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        byteArrayOutputStream.write(buffer, 0, bytesRead);
+                        response += byteArrayOutputStream.toString("UTF-8");
                     }
-                });
 
-            } catch (UnknownHostException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                response = "UnknownHostException: " + e.toString();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                response = "IOException: " + e.toString();
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            textResponse.setText(response);
+                        }
+                    });
+
+                } catch (UnknownHostException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    response = "UnknownHostException: " + e.toString();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    response = "IOException: " + e.toString();
+                } finally {
+                    if (socket != null) {
+                        try {
+                            socket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                status = true;
             }
-			finally {
-				if (socket != null) {
-					try {
-						socket.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-            status=true;
             return null;
         }
-
-
 
 
 /*
@@ -224,13 +215,21 @@ public class ClientActivity extends Activity {
         @Override
         protected void onPostExecute(Void result) {
             if(status) {
-                Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, do here your stuff.",
+                Toast.makeText(getApplicationContext(), "Noise Thersold Crossed!",
                         Toast.LENGTH_LONG).show();
                 super.onPostExecute(result);
 
                 addNotification();
                 comebackhome();
             }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    textResponse.setText("Error: IP or port is incorrect!");
+                }
+            });
+
         }
 
 //END Class AsyncTask
