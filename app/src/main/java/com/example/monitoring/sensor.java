@@ -34,7 +34,7 @@ public class sensor extends  AppCompatActivity{
     /****************** Define runnable thread again and again detect noise *********/
     private Runnable mSleepTask = new Runnable() {
         public void run() {
-            //Log.i("Noise", "runnable mSleepTask");
+            Log.i("Noise", "runnable mSleepTask");
             start();
         }
     };
@@ -51,7 +51,7 @@ public class sensor extends  AppCompatActivity{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                //Log.i("Noise", "==== onCreate ===");
+                Log.i("Noise", "==== onCreate ===");
             }
             // Runnable(mPollTask) will again execute after POLL_INTERVAL
             mHandler.postDelayed(mPollTask, POLL_INTERVAL);

@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        NumberPicker np = findViewById(R.id.numberPicker);
+        np = findViewById(R.id.numberPicker);
 
         np.setMinValue(1);
         np.setMaxValue(20);

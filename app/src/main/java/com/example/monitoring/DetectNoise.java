@@ -46,16 +46,20 @@ public class DetectNoise {
 
     public double getAmplitude() {
         if (mRecorder != null)
-            //return  (mRecorder.getMaxAmplitude()/2700.0);
             return   20 * Math.log10(mRecorder.getMaxAmplitude() / 2700.0);
         else
             return 0;
 
     }
 
+
+/*
     public double getAmplitudeEMA() {
         double amp = getAmplitude();
         mEMA = EMA_FILTER * amp + (1.0 - EMA_FILTER) * mEMA;
         return mEMA;
     }
+ */
+
+
 }

@@ -64,6 +64,16 @@ public class ClientActivity extends Activity {
         buttonConnect.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
+                if(editTextAddress.getText().toString().isEmpty() || editTextPort.getText().toString().isEmpty()){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            response.setText("An empty field is not allowed...try again.");
+                        }
+                    });
+                    return;
+                }
+
                 Client myClient = new Client(editTextAddress.getText().toString(),
                         Integer.parseInt(editTextPort.getText().toString()),
                         response);
@@ -113,11 +123,12 @@ public class ClientActivity extends Activity {
         set();
     }
 
+/*
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void closeApp (View view){
         finishAndRemoveTask();
     }
-
+*/
 
 
     public class Client extends AsyncTask<Void, String, Void> {
@@ -137,7 +148,7 @@ public class ClientActivity extends Activity {
         @Override
         protected Void doInBackground(Void... arg0) {
 
-            Socket socket = null;
+            Socket socket;
 
             try {
                 socket = new Socket(dstAddress, dstPort);
@@ -204,10 +215,6 @@ public class ClientActivity extends Activity {
 /*
         protected void onProgressUpdate(String... s) {
             //activity.infoip.setText(String.valueOf(progress[0]));
-            TextView t1 = findViewById(R.id.responseTextView);
-            t1.setText(String.valueOf(s));
-            if(response.equals("Welcome from Server! \n"))
-                t1.setText(" HO LETTO IL CONTENUTO!");
         }
 */
 
@@ -235,6 +242,8 @@ public class ClientActivity extends Activity {
 
 //END Class AsyncTask
     }
+
+
 
 
 

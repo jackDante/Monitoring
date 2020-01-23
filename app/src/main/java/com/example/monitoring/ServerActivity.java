@@ -27,13 +27,17 @@ public class ServerActivity extends AppCompatActivity {
 
     /* constants */
     private static final int POLL_INTERVAL = 300;
+
     /** running state **/
     private boolean mRunning = false;
     /** config state **/
     private int mThreshold;
+
     int RECORD_AUDIO = 0;
+
     private PowerManager.WakeLock mWakeLock;
     private Handler mHandler = new Handler();
+
     /* sound data source */
     private DetectNoise mSensor;
 
@@ -42,16 +46,16 @@ public class ServerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server);
+
         infoip =  findViewById(R.id.infoip);
         msg =  findViewById(R.id.msg);
         tv_noice =  findViewById(R.id.textView9);
         level = findViewById(R.id.textView10);
-        //InetAddress a = new InetAddress();
 
         //I receive the intThreshold from the MainActivity (NumberPicker)
         Intent mIntent = getIntent();
         int intValue = mIntent.getIntExtra("intThreshold", 8);
-        if(intValue==0) intValue=8;
+        if(intValue == 0) intValue=8;
         mThreshold = intValue;
 
         // Show alert when noise thersold crossed
@@ -78,12 +82,10 @@ public class ServerActivity extends AppCompatActivity {
 
 
 
-
-
     /****************** Define runnable thread again and again detect noise *********/
     private Runnable mSleepTask = new Runnable() {
         public void run() {
-            //Log.i("Noise", "runnable mSleepTask");
+            Log.i("Noise", "runnable mSleepTask");
             start();
         }
     };
@@ -92,11 +94,11 @@ public class ServerActivity extends AppCompatActivity {
     private Runnable mPollTask = new Runnable() {
         public void run() {
             double amp = mSensor.getAmplitude();
-            //Log.i("Noise", "runnable mPollTask");
+            Log.i("Noise", "runnable mPollTask");
             updateDisplay("Monitoring Voice...", amp);
             if ((amp > mThreshold)) {
                 callForHelp(amp);
-                //Log.i("Noise", "==== onCreate ===");
+                Log.i("Noise", "==== onCreate ===");
             }
             // Runnable(mPollTask) will again execute after POLL_INTERVAL
             mHandler.postDelayed(mPollTask, POLL_INTERVAL);
@@ -107,7 +109,7 @@ public class ServerActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        //Log.i("Noise", "==== onResume ===");
+        Log.i("Noise", "==== onResume ===");
 
         //initializeApplicationConstants();
         if (!mRunning) {
@@ -118,7 +120,7 @@ public class ServerActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        // Log.i("Noise", "==== onStop ===");
+        Log.i("Noise", "==== onStop ===");
         //Stop noise monitoring
         stop();
     }
@@ -150,12 +152,12 @@ public class ServerActivity extends AppCompatActivity {
         mSensor.stop();
         mRunning = false;
     }
-
+/*
     private void initializeApplicationConstants() {
         // Set Noise Threshold
         //mThreshold = 10;
     }
-
+*/
     private void updateDisplay(String status, double signalEMA) {
         //mStatusView.setText(status);
         Log.d("SOUND", String.valueOf(signalEMA));
@@ -165,16 +167,13 @@ public class ServerActivity extends AppCompatActivity {
     private void callForHelp(double signalEMA) {
         //stop();
         // Show alert when noise thersold crossed
-        //Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, sending out an sos!",
+        //TESTING -- Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, sending out an sos!",
         //        Toast.LENGTH_LONG).show();
 
         if (server.exist()) {
             server.notifica("SOS baby!");
             server.closeServer();
             server = new com.example.monitoring.Server(this);
-
-            //Intent i = new Intent(this, MainActivity.class);
-            //startActivity(i);
         }
 
         Log.d("SOUND", String.valueOf(signalEMA));

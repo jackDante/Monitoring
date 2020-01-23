@@ -28,7 +28,6 @@ public class Server extends AppCompatActivity {
 	//-------------------------
 	private Socket socket;
 	private boolean connected = false;
-	private int count = 0;
 	//-------------------------
 
 	static String message = "";
