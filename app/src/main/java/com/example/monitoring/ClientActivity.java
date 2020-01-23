@@ -190,12 +190,12 @@ public class ClientActivity extends Activity {
                     if (socket != null) {
                         try {
                             socket.close();
+                            status = true;
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
                 }
-                status = true;
             }
             return null;
         }
@@ -222,13 +222,14 @@ public class ClientActivity extends Activity {
                 addNotification();
                 comebackhome();
             }
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    textResponse.setText("Error: IP or port is incorrect!");
-                }
-            });
+            else {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        textResponse.setText("Error: IP or port is incorrect!");
+                    }
+                });
+            }
 
         }
 
@@ -253,7 +254,7 @@ public class ClientActivity extends Activity {
                 new NotificationCompat.Builder(getApplicationContext(), "YOUR_CHANNEL_ID")
                 .setSmallIcon(R.mipmap.ic_launcher) // notification icon
                 .setContentTitle("MONITORING") // title for notification
-                .setContentText("SOS HELP BABY")// message for notification
+                .setContentText("Dear, You have to help your baby!")// message for notification
                 .setAutoCancel(true); // clear notification after click
         Intent intent = new Intent(getApplicationContext(), ClientActivity.class);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);

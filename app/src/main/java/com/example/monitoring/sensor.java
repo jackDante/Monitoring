@@ -127,7 +127,7 @@ public class sensor extends  AppCompatActivity{
         status.setText(s);
         //bar.setProgress((int)signalEMA);
         Log.d("SONUND", String.valueOf(signalEMA));
-        tv_noice.setText(signalEMA + "  dB");
+        tv_noice.setText(signalEMA + "   dB");
     }
 
     private void callForHelp(double signalEMA) throws IOException {

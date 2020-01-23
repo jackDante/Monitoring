@@ -23,7 +23,7 @@ public class ServerActivity extends AppCompatActivity {
 
     com.example.monitoring.Server server;
 
-    public TextView infoip, msg;
+    public TextView infoip, msg, tv_noice, level;
 
     /* constants */
     private static final int POLL_INTERVAL = 300;
@@ -44,7 +44,18 @@ public class ServerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_server);
         infoip =  findViewById(R.id.infoip);
         msg =  findViewById(R.id.msg);
+        tv_noice =  findViewById(R.id.textView9);
+        level = findViewById(R.id.textView10);
         //InetAddress a = new InetAddress();
+
+        //I receive the intThreshold from the MainActivity (NumberPicker)
+        Intent mIntent = getIntent();
+        int intValue = mIntent.getIntExtra("intThreshold", 8);
+        if(intValue==0) intValue=8;
+        mThreshold = intValue;
+
+        // Show alert when noise thersold crossed
+        level.setText("Thersold = " + intValue);
 
         server = new com.example.monitoring.Server(this);
 
@@ -82,7 +93,7 @@ public class ServerActivity extends AppCompatActivity {
         public void run() {
             double amp = mSensor.getAmplitude();
             //Log.i("Noise", "runnable mPollTask");
-            //updateDisplay("Monitoring Voice...", amp);
+            updateDisplay("Monitoring Voice...", amp);
             if ((amp > mThreshold)) {
                 callForHelp(amp);
                 //Log.i("Noise", "==== onCreate ===");
@@ -98,7 +109,7 @@ public class ServerActivity extends AppCompatActivity {
         super.onResume();
         //Log.i("Noise", "==== onResume ===");
 
-        initializeApplicationConstants();
+        //initializeApplicationConstants();
         if (!mRunning) {
             mRunning = true;
             start();
@@ -142,24 +153,23 @@ public class ServerActivity extends AppCompatActivity {
 
     private void initializeApplicationConstants() {
         // Set Noise Threshold
-        mThreshold = 10;
+        //mThreshold = 10;
     }
 
     private void updateDisplay(String status, double signalEMA) {
         //mStatusView.setText(status);
-        //bar.setProgress((int)signalEMA);
         Log.d("SOUND", String.valueOf(signalEMA));
-        //tv_noice.setText(signalEMA+"dB");
+        tv_noice.setText(signalEMA+"dB");
     }
 
     private void callForHelp(double signalEMA) {
         //stop();
         // Show alert when noise thersold crossed
-        Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, sending out an sos!",
-                Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, sending out an sos!",
+        //        Toast.LENGTH_LONG).show();
 
         if (server.exist()) {
-            server.notifica("sending out an sos!");
+            server.notifica("SOS baby!");
             server.closeServer();
             server = new com.example.monitoring.Server(this);
 
