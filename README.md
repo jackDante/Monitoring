@@ -6,7 +6,7 @@ So, in order to develop this project there’s a Client phone that is connected 
 
 ## Getting Started
 
-This app works using your phone’s microphone. You will only need two Android devices.
+This app works using your phone’s microphone. You will only need two Android devices (with Android 7.0 (API level 24) or recent version).
 Both devices should have Monitoring App installed. 
 So, via wifi, Monitoring app can connect the Client phone to the Server phone. 
 When the Server hears a noise...it sends a message to the client. 
@@ -30,5 +30,9 @@ This is a tutorial step by step in order to show how to use monitoring app:
 ## Built With
 
 * [Android Studio](https://developer.android.com/studio/?gclid=EAIaIQobChMIkf6Qzuea5wIVlE8YCh2OMQMdEAAYASAAEgL0NfD_BwE) 
+
+## Tested with
+1. Samsung Galaxy Note 9 - Android 10 (API level 29)
+2. LG G7 thinQ - Android 9 (API level 28)
 
 ### See the pdf file for additional information.
