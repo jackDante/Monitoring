@@ -1,9 +1,11 @@
 package com.example.monitoring;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.NumberPicker;
@@ -51,6 +53,11 @@ public class MainActivity extends AppCompatActivity {
     public void onClickSensor(View w){
         Intent i= new Intent( this, sensor.class);
         startActivity(i);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void closeApp (View view){
+        finishAndRemoveTask();
     }
 
 

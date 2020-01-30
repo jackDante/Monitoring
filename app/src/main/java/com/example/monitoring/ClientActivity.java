@@ -212,12 +212,6 @@ public class ClientActivity extends Activity {
         }
 
 
-/*
-        protected void onProgressUpdate(String... s) {
-            //activity.infoip.setText(String.valueOf(progress[0]));
-        }
-*/
-
 
         @Override
         protected void onPostExecute(Void result) {
