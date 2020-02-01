@@ -44,10 +44,13 @@
             android:layout_width="319dp"
             android:layout_height="255dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="68dp"
             android:background="#00F1F1F1"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.178">
 
             <TextView
                 android:id="@+id/msg"
